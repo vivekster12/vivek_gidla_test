@@ -26,59 +26,68 @@ def rule2(string1, string2):
                     return 1
                 else:
                     return 2
+    print ("both are valid")
     return std_list
 
 
-#def rule9(string1,string2):
+def rule9(string):
+        # rule 9: A pre-release version MAY be denoted by appending a hyphen and a series of dot separated identifiers immediately following the patch version.
+        # Identifiers MUST comprise only ASCII alphanumerics [0-9A-Za-z]. Identifiers MUST NOT be empty. Numeric identifiers MUST NOT include leading zeroes.
+         
+        # only ascii alphanumerics and hypen
+        invalid = "[^0-9A-Za-z\.]"
+        #match = re.search(invalid,string)
+        #if match:
+            #return -1 # invalid
+        
+        # check that only one identifier and it is non empty
+        spl_str = string.split('-')
+        if len(spl_str) > 2 or '' in spl_str:
+            return -1
+        identifier = spl_str[1]
+        match = re.search(invalid,identifier)
+        if match:
+            return -1 # invalid
+        print ("pre_rel is valid")
+        return identifier
+        
+
 
 
 def method(string1, string2):
-#    # rule 2 of semantic version (2.0.0)
-#    # A normal version number MUST take the form X.Y.Z where X, Y, and Z are non-negative integers, and MUST NOT contain leading zeroes. X is the major version, Y is the minor version, and Z is the patch version. Each element MUST increase numerically. 
-#    # first, strings must start with X.Y.Z
-#    standard = "^[1-9][0-9]*\.[0-9]+\.[0-9]+"
-#    # if string doesn't have a match then its an invalid string
-#    std_list = []
-#    for string in (string1,string2):
-#        match = re.search(standard,string)
-#        if not match:
-#            print (string + " is invalid check 1")
-#            return 
-#        std_list.append(match.group())
-#    
-#    # second, make sure none of Y,Z don't have a leading zero (already checked X does not lead with a 0)
-#    for string in std_list:
-#        spl_str = string.split('.')
-#        for val in spl_str:
-#            if len(val)>1 and val[0] == '0':
-#                print (string + " is invalid check 2")
-
+    # check 1
     std_list = rule2(string1,string2)
+    if type(std_list) is int:
+        if std_list == 1:
+            print (string1, " is invalid")
+            return
+        else:
+            print (string2, " is invalid")
+            return
 
-    # now, compare X.Y.Z  version strings (if difference found here, can avoid looking at rest of strings)
-    std_prec = maj_min_patch__precedence(std_list[0],std_list[1])
+    # passed check 1, do precedence check (if difference found here, can avoid looking at rest of strings)
+    std_prec = maj_min_patch_precedence(std_list[0],std_list[1])
     if std_prec > 0:
         print (string1, " is greater")
         return
     elif std_prec < 0:
         print (string2, " is greater")
     else:
-        # rule 9: A pre-release version MAY be denoted by appending a hyphen and a series of dot separated identifiers immediately following the patch version. 
-        # Identifiers MUST comprise only ASCII alphanumerics and hyphen [0-9A-Za-z-]. Identifiers MUST NOT be empty. Numeric identifiers MUST NOT include leading zeroes.
-        # need to refactor rule9 validity check!
+        # X.Y.Z for both strings are equal,check for pre_rel info, if present, check if valid  # check 2
         if '-' in string1 and '-' in string2:
-            # both strings have pre-rel info
+            # both strings have pre-rel info, check if their valid
+            print ("both have pre_rel")
+            pre_rel_1 = rule9(string1)
+            if type(pre_rel_1) is int and pre_rel_1 < 1:
+                print (string1, " is invalid")
+                return
+            pre_rel_2 = rule9(string2)
+            if type(pre_rel_2) is int and  pre_rel_2 < 1:
+                print (string2, " is invalid")
+                return
 
-            #print ("need to do pre-version precedence checks")
-            pre_rel = []
-            for string in (string1,string2):
-                temp = string.split('-')
-                if len(temp) > 2:
-                    print (string, " is invalid check 3")
-                else:
-                    pre_rel.append(temp[1])
-
-            pre_prec = pre_rel_precedence(pre_rel[0],pre_rel[1])
+            # both are valid, check precedence
+            pre_prec = pre_rel_precedence(pre_rel_1, pre_rel_2)
             if pre_prec > 0:
                 print (string1, " is greater")
                 return
@@ -88,10 +97,21 @@ def method(string1, string2):
                 print ("both strings are equal")
 
         elif '-' in string1 and '-' not in string2:
+            # pre_rel info only in string1, check if in valid format
+            pre_rel_1 = rule9(string1)
+            if type(pre_rel_1) is int and  pre_rel_1 < 1:
+                return (string1, " is invalid")
+            # as per rule 9: Pre-release versions have a lower precedence than the associated normal version
             print (string2, " is greater")
         elif '-' in string2 and '-' not in string1:
+            # pre_rel info only in string2, check if in valid format
+            pre_rel_2 = rule9(string2)
+            if type(pre_rel_2) is int and pre_rel_2< 1:
+                return (string2, " is invalid")
+            # as per rule 9: Pre-release versions have a lower precedence than the associated normal version
             print (string1, " is greater")
         else:
+            # both strings have same X.Y.Z info and same pre_rel info
             print ("both strings equal")
                 
 
@@ -114,7 +134,7 @@ def pre_rel_precedence(input1,input2):
                 return -1
             elif str2.isdigit() and not str1.isdigit():
                 return 1
-        # do alpha sort check
+        # do alphabetical ordering check
         prec = alphaCheck(str1,str2)
         if prec > 0:
             return 1
@@ -127,24 +147,19 @@ def pre_rel_precedence(input1,input2):
 
 
 
-# mght have to rename method
+# alpha sort check
 def alphaCheck(input1, input2):
-    print ("hereere")
-    print (input1, input2)
     if input1 == input2:
-        print ("returning")
-        print (input1, input2)
         return 0
-    print ("but here")
     sort_seq = sorted([input1,input2])
-    print (sort_seq, "here")
     if input1 == sort_seq[0]:
         return -1
     else:
         return 1
 
 def maj_min_patch_precedence(input1,input2):
-    # Precedence is determined by the first difference when comparing each of these identifiers from left to right as follows: Major, minor, and patch versions are always compared numerically.
+    # as per rule 11: precedence is determined by the first difference when comparing each of these identifiers from left to right as follows: 
+    # Major, minor, and patch versions are always compared numerically.
     # method returns 1 if string 1 is greater, -1 if string 2 is greater, 0 if both equal
     for str1,str2 in zip(input1.split('.'),input2.split('.')):
         if int(str1)>int(str2):
@@ -157,6 +172,6 @@ def maj_min_patch_precedence(input1,input2):
 
 
 if __name__ == '__main__':
-    s1 = "1.0.0"
-    s2 = "1.0.0-rc.1"
+    s1 = "1.0.0-beta.2"
+    s2 = "1.0.0-alpha.beta"
     method(s1,s2)
