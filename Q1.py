@@ -8,11 +8,11 @@ def method(in1, in2):
         line1 = in2
         line2 = in1
     else:
-        # both lines have same start point ... overlap
+        # both lines have same start point ... -> overlap
         return True
 
     if line1[1] >= line2[0]:
-        # start of end of input1 comes after or at start of input2. ... overlap
+        # end of input1 comes after or at the start of input2. ... -> overlap
             return True
         else:
             return False
