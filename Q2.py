@@ -1,4 +1,5 @@
 import re
+# ***************NOTE: all rules version string validity and precedence is from https://semver.org/spec/v2.0.0.html ****************************
 
 def rule2(string1, string2):
     # rule 2 of semantic version (2.0.0)
@@ -216,6 +217,6 @@ def maj_min_patch_precedence(input1,input2):
 
 
 if __name__ == '__main__':
-    s1 = "1.0.0-alpha+"
-    s2 = "1.0.0"
+    s1 = "1.0.0-alpha+123132"
+    s2 = "1.0.0-alpha"
     method(s1,s2)
