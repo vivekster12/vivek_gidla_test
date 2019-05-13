@@ -26,7 +26,7 @@ def rule2(string1, string2):
                     return 1
                 else:
                     return 2
-    print ("both are valid")
+    #print ("both are valid")
     return std_list
 
 
@@ -48,13 +48,34 @@ def rule9(string):
         match = re.search(invalid,identifier)
         if match:
             return -1 # invalid
-        print ("pre_rel is valid")
+        #print ("pre_rel is valid")
         return identifier
         
 
+def prim_invalid_check(string):
+    # check it has no invalid chars
+    invalid_1 = "[^0-9A-Za-z-+\.]"
+    # check it ends with only alphanumeric chars
+    invalid_2 = "[^0-9A-Za-z]$"
+    if (re.search(invalid_1,string) is not None or re.search(invalid_2,string) is not None):
+        return -1 # invalid
+    return 1
 
+def remove_build_meta_data(string):
+    if '+' in string:
+        return string.split('+')[0]
 
 def method(string1, string2):
+    print ("input strings: ", string1, " ", string2)
+    
+    # check 0: make sure no invalid char in string
+    if prim_invalid_check(string1) < 1:
+        print (string1, " is invalid")
+        return
+    if prim_invalid_check(string2) < 1:
+        print (string2, " is invalid")
+        return
+
     # check 1
     std_list = rule2(string1,string2)
     if type(std_list) is int:
@@ -76,7 +97,7 @@ def method(string1, string2):
         # X.Y.Z for both strings are equal,check for pre_rel info, if present, check if valid  # check 2
         if '-' in string1 and '-' in string2:
             # both strings have pre-rel info, check if their valid
-            print ("both have pre_rel")
+            #print ("both have pre_rel")
             pre_rel_1 = rule9(string1)
             if type(pre_rel_1) is int and pre_rel_1 < 1:
                 print (string1, " is invalid")
@@ -173,5 +194,5 @@ def maj_min_patch_precedence(input1,input2):
 
 if __name__ == '__main__':
     s1 = "1.0.0-beta.2"
-    s2 = "1.0.0-alpha.beta"
+    s2 = "1.0.0..."
     method(s1,s2)
