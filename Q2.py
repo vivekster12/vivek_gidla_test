@@ -43,6 +43,7 @@ def rule9(string):
         # check that only one identifier and it is non empty
         spl_str = string.split('-')
         if len(spl_str) > 2 or '' in spl_str:
+            #print ("yo")
             return -1
         identifier = spl_str[1]
         match = re.search(invalid,identifier)
@@ -63,7 +64,12 @@ def prim_invalid_check(string):
 
 def remove_build_meta_data(string):
     if '+' in string:
-        return string.split('+')[0]
+        ret = string.split('+')
+        if len(ret) > 2 or '' in ret: # i.e more than one occurence of '+', -> invalid
+            print ("here")
+            return -1
+        return ret[0]
+    return string
 
 def method(string1, string2):
     print ("input strings: ", string1, " ", string2)
@@ -75,6 +81,17 @@ def method(string1, string2):
     if prim_invalid_check(string2) < 1:
         print (string2, " is invalid")
         return
+    # check for meta-data info, if present (in correct format) remove it. this data is irrelevant for precedence check. as per rule 10
+    build_check = remove_build_meta_data(string1)
+    if type(build_check) is int and build_check < 1:
+        print (string1, " is invalid")
+        return
+    string1 = build_check
+    build_check = remove_build_meta_data(string2)
+    if type(build_check) is int and build_check < 1:
+        print (string2, " is invalid")
+        return
+    string2 = build_check
 
     # check 1
     std_list = rule2(string1,string2)
@@ -88,17 +105,21 @@ def method(string1, string2):
 
     # passed check 1, do precedence check (if difference found here, can avoid looking at rest of strings)
     std_prec = maj_min_patch_precedence(std_list[0],std_list[1])
+    #print ("does it get here")
+    #print (std_prec)
     if std_prec > 0:
         print (string1, " is greater")
         return
     elif std_prec < 0:
         print (string2, " is greater")
     else:
+        #print ("then here")
         # X.Y.Z for both strings are equal,check for pre_rel info, if present, check if valid  # check 2
         if '-' in string1 and '-' in string2:
             # both strings have pre-rel info, check if their valid
             #print ("both have pre_rel")
             pre_rel_1 = rule9(string1)
+            #print ("gets here")
             if type(pre_rel_1) is int and pre_rel_1 < 1:
                 print (string1, " is invalid")
                 return
@@ -121,14 +142,16 @@ def method(string1, string2):
             # pre_rel info only in string1, check if in valid format
             pre_rel_1 = rule9(string1)
             if type(pre_rel_1) is int and  pre_rel_1 < 1:
-                return (string1, " is invalid")
+                print (string1, " is invalid")
+                return
             # as per rule 9: Pre-release versions have a lower precedence than the associated normal version
             print (string2, " is greater")
         elif '-' in string2 and '-' not in string1:
             # pre_rel info only in string2, check if in valid format
             pre_rel_2 = rule9(string2)
             if type(pre_rel_2) is int and pre_rel_2< 1:
-                return (string2, " is invalid")
+                print (string2, " is invalid")
+                return
             # as per rule 9: Pre-release versions have a lower precedence than the associated normal version
             print (string1, " is greater")
         else:
@@ -193,6 +216,6 @@ def maj_min_patch_precedence(input1,input2):
 
 
 if __name__ == '__main__':
-    s1 = "1.0.0-beta.2"
-    s2 = "1.0.0..."
+    s1 = "1.0.0-alpha+"
+    s2 = "1.0.0"
     method(s1,s2)
