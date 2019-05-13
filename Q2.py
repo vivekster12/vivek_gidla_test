@@ -1,5 +1,5 @@
 import re
-# ***************NOTE: all rules version string validity and precedence is from https://semver.org/spec/v2.0.0.html ****************************
+# NOTE: all rules for version string validity and precedence are from https://semver.org/spec/v2.0.0.html ****************************
 
 def rule2(string1, string2):
     # rule 2 of semantic version (2.0.0)
@@ -37,9 +37,6 @@ def rule9(string):
          
         # only ascii alphanumerics and hypen
         invalid = "[^0-9A-Za-z\.]"
-        #match = re.search(invalid,string)
-        #if match:
-            #return -1 # invalid
         
         # check that only one identifier and it is non empty
         spl_str = string.split('-')
@@ -213,10 +210,25 @@ def maj_min_patch_precedence(input1,input2):
             return -1
     return 0
 
-
+def test_cases():
+    # invalid strings
+    s1_inv = ["123", "1.0.0.@#$","1.0.0.", "1.0.o-alpha", "1..0.0","alhpa-1.0.0","1.0.0-","1.0.0+","1.0.0", "1.0.0-alhpa.,,."]
+    s2 = "1.0.0"
+    # greater than strings
+    s1_gre = ["1.0.0-alpha" , "1.0.0-alpha.1" , "1.0.0-alpha.beta" , "1.0.0-beta" , "1.0.0-beta.2" , "1.0.0-beta.11" , "1.0.0-rc.1"]
+    # equal string
+    s1_eq = ["1.0.0-alpha.beta", "1.0.0-alpha.beta+1.1.0"]
+    for s1 in s1_inv:
+        method(s1,s2)
+    for s1 in s1_gre:
+        method(s1,s2)
+    for s1 in s1_eq:
+        s2 = "1.0.0-alpha.beta"
+        method(s1,s2)
 
 
 if __name__ == '__main__':
     s1 = "1.0.0-alpha+123132"
     s2 = "1.0.0-alpha"
-    method(s1,s2)
+    #method(s1,s2)
+    test_cases()
